@@ -30,9 +30,9 @@ const responseHandler = (req, res, next) => {
   res.validationError = (data = {}) => {
     res.status(responseCode.validationError).json(responseBody.validationError(data));
   };
-  res.unAuthorized = (data = {}) => {
-    res.status(responseCode.unAuthorized).json(responseBody.unAuthorized(data));
-  };
+  // res.unAuthorized = (data = {}) => {
+  //   res.status(responseCode.unAuthorized).json(responseBody.unAuthorized(data));
+  // };
   next();
 };
 

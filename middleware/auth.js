@@ -43,7 +43,6 @@ const verifyCallback = (req, resolve, reject) => async (error, user, info) => {
  * @param {int} platform : platform
  */
 const auth = () => async (req, res, next) => {
-
   return new Promise((resolve, reject) => {
     passport.authenticate('device-rule', { session: false }, verifyCallback(req, resolve, reject))(
       req,
@@ -53,7 +52,7 @@ const auth = () => async (req, res, next) => {
   })
     .then(() => next())
     .catch((error) => {
-      return res.unAuthorized({ message: error.message });
+      return res.badRequest({ message: error.message });
     });
 };
 
