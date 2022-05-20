@@ -5,10 +5,12 @@
 
 const Users = require('../../model/Users');
 const Orders = require('../../model/Orders');
+const Catalogs = require('../../model/Catalogs');
 const OrdersSchemaKey = require('../../utils/validation/OrdersValidation');
 const validation = require('../../utils/validateRequest');
 const dbService = require('../../utils/dbService');
 const authConstant = require('../../constants/authConstant');
+const ObjectId = require('mongodb').ObjectId;
 
 
 /**
@@ -54,10 +56,10 @@ const listOfSellers = async (req, res) => {
  const getSellerCatalogs = async (req,res) => {
     try {
       let query = {};
-      if (!ObjectId.isValid(req.params.id)) {
+      if (!ObjectId.isValid(req.params.seller_id)) {
         return res.validationError({ message : 'invalid objectId.' });
       }
-      query._id = req.params.id;
+      query.sellerId = req.params.seller_id;
       let options = {};
       let foundCatalogs = await dbService.findOne(Catalogs,query, options);
       if (!foundCatalogs){
