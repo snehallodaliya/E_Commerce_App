@@ -6,8 +6,10 @@
 const Catalogs = require('../../model/Catalogs');
 const CatalogsSchemaKey = require('../../utils/validation/CatalogsValidation');
 const Products = require('../../model/Products');
+const Orders = require('../../model/Orders');
 const validation = require('../../utils/validateRequest');
 const dbService = require('../../utils/dbService');
+const ObjectId = require('mongodb').ObjectId;
 
 
 /**
@@ -54,7 +56,33 @@ const createProduct = async (req, res) => {
     }
 };
 
+/**
+ * @description : find document of Orders from table by id;
+ * @param {Object} req : request including id in request params.
+ * @param {Object} res : response contains document retrieved from table.
+ * @return {Object} : found Orders. {status, message, data}
+ */
+ const getOrders = async (req,res) => {
+    try {
+      let query = {};
+      if (!ObjectId.isValid(req.params.id)) {
+        return res.validationError({ message : 'invalid objectId.' });
+      }
+      query.sellerId = req.params.id;
+      let options = {};
+      let foundOrders = await dbService.findOne(Orders,query, options);
+      if (!foundOrders){
+        return res.recordNotFound();
+      }
+      return res.success({ data :foundOrders });
+    }
+    catch (error){
+      return res.internalServerError({ message:error.message });
+    }
+  };
+
 module.exports = {
     createCatalog,
-    createProduct
+    createProduct,
+    getOrders
 };

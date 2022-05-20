@@ -4,6 +4,9 @@
  */
 
 const Users = require('../../model/Users');
+const Orders = require('../../model/Orders');
+const OrdersSchemaKey = require('../../utils/validation/OrdersValidation');
+const validation = require('../../utils/validateRequest');
 const dbService = require('../../utils/dbService');
 const authConstant = require('../../constants/authConstant');
 
@@ -42,7 +45,56 @@ const listOfSellers = async (req, res) => {
     }
 };
 
+/**
+ * @description : find document of Catalogs from table by id;
+ * @param {Object} req : request including id in request params.
+ * @param {Object} res : response contains document retrieved from table.
+ * @return {Object} : found Catalogs. {status, message, data}
+ */
+ const getSellerCatalogs = async (req,res) => {
+    try {
+      let query = {};
+      if (!ObjectId.isValid(req.params.id)) {
+        return res.validationError({ message : 'invalid objectId.' });
+      }
+      query._id = req.params.id;
+      let options = {};
+      let foundCatalogs = await dbService.findOne(Catalogs,query, options);
+      if (!foundCatalogs){
+        return res.recordNotFound();
+      }
+      return res.success({ data :foundCatalogs });
+    }
+    catch (error){
+      return res.internalServerError({ message:error.message });
+    }
+  };
+
+/**
+ * @description : create document of Orders in mongodb collection.
+ * @param {Object} req : request including body for creating document.
+ * @param {Object} res : response of created document
+ * @return {Object} : created Orders. {status, message, data}
+ */ 
+ const createOrders = async (req, res) => {
+    try {
+      let dataToCreate = { ...req.body,sellerId:req.params.seller_id || {} };
+      let validateRequest = validation.validateParamsWithJoi(
+        dataToCreate,
+        OrdersSchemaKey.schemaKeys);
+      if (!validateRequest.isValid) {
+        return res.validationError({ message : `Invalid values in parameters, ${validateRequest.message}` });
+      }
+      dataToCreate = new Orders(dataToCreate);
+      let createdOrders = await dbService.create(Orders,dataToCreate);
+      return res.success({ data : createdOrders });
+    } catch (error) {
+      return res.internalServerError({ message:error.message }); 
+    }
+  };
 
 module.exports = {
     listOfSellers,
+    getSellerCatalogs,
+    createOrders
 };
